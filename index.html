@@ -567,52 +567,6 @@
             }
         };
 
-        // --- SISTEM AUTO-MULTIPLIER 5X (DYNAMIC VARIANT GENERATOR) ---
-        // Fungsi ini membaca 25 soal di atas, lalu mengkalikannya menjadi 5 varian berbeda (total 125 soal).
-        function expandDatabase(db) {
-            let expandedDb = { english: { gradeA: [] }, science: { gradeA: [] }, math: { gradeA: [] } };
-            const namesM = ["Andi", "Budi", "Dodi", "Edo", "Fandi"];
-            const namesF = ["Ria", "Siti", "Nala", "Lina", "Tini"];
-            const fruitsID = ["apel", "jeruk", "mangga", "pisang", "stroberi"];
-            const fruitsEN = ["apples", "oranges", "mangoes", "bananas", "grapes"];
-
-            for (let subj in db) {
-                let questions = db[subj].gradeA;
-                questions.forEach(q => {
-                    // Masukkan versi asli (Varian 1)
-                    expandedDb[subj].gradeA.push({...q, id: q.id + "_v1"});
-
-                    // Masukkan Varian 2 sampai 5
-                    for (let v = 1; v < 5; v++) {
-                        let newQ = JSON.parse(JSON.stringify(q)); // Deep copy soal
-                        newQ.id = q.id + "_v" + (v+1);
-
-                        // Fungsi mengganti nama tokoh dan buah (mencegah hafalan letak jawaban)
-                        let replaceText = (text) => {
-                            if(!text) return text;
-                            return text.replace(/Andi/g, namesM[v])
-                                       .replace(/Budi/g, namesM[(v+1)%5])
-                                       .replace(/Ria/g, namesF[v])
-                                       .replace(/Nala/g, namesF[(v+1)%5])
-                                       .replace(/apples/g, fruitsEN[v])
-                                       .replace(/apel/g, fruitsID[v]);
-                        };
-
-                        newQ.question = replaceText(newQ.question);
-                        newQ.hint = replaceText(newQ.hint);
-                        newQ.explanation = replaceText(newQ.explanation);
-                        newQ.options = newQ.options.map(opt => replaceText(opt));
-
-                        expandedDb[subj].gradeA.push(newQ);
-                    }
-                });
-            }
-            return expandedDb;
-        }
-
-        // Jalankan Generator: 25 soal -> 125 soal / mata pelajaran secara instan!
-        const generatedDbQuestions = expandDatabase(dbQuestions);
-
         let activeQuestions = []; 
         let userAnswers = {};
         let currentQIndex = 0;
@@ -629,6 +583,7 @@
             return array;
         }
 
+        // FUNGSI UTAMA PENGACAKAN TANPA DUPLIKAT LOGIKA
         function startSubject(subject) {
             playSound('click');
             
@@ -637,15 +592,44 @@
             studentCity = document.getElementById('input-city').value.trim() || "-";
 
             let currentGrade = 'gradeA';
+            let originalQuestions = dbQuestions[subject][currentGrade] || dbQuestions.english.gradeA;
             
-            // Ambil dari database yang sudah dikali 5 (125 soal)
-            let rawQuestions = [...(generatedDbQuestions[subject][currentGrade] || generatedDbQuestions.english.gradeA)];
+            const namesM = ["Andi", "Budi", "Dodi", "Edo", "Fandi"];
+            const namesF = ["Ria", "Siti", "Nala", "Lina", "Tini"];
+            const fruitsID = ["apel", "jeruk", "mangga", "pisang", "stroberi"];
+            const fruitsEN = ["apples", "oranges", "mangoes", "bananas", "grapes"];
+
+            let selectedQuestions = [];
+
+            // 1. Ambil tepat 25 soal induk, ubah ke salah satu variannya secara acak
+            originalQuestions.forEach(q => {
+                let v = Math.floor(Math.random() * 5); // Angka acak 0 sampai 4
+                
+                let newQ = JSON.parse(JSON.stringify(q)); 
+                
+                if (v > 0) { // Jika terpilih > 0, ganti nama tokohnya
+                    let replaceText = (text) => {
+                        if(!text) return text;
+                        return text.replace(/Andi/g, namesM[v])
+                                   .replace(/Budi/g, namesM[(v+1)%5])
+                                   .replace(/Ria/g, namesF[v])
+                                   .replace(/Nala/g, namesF[(v+1)%5])
+                                   .replace(/apples/g, fruitsEN[v])
+                                   .replace(/apel/g, fruitsID[v]);
+                    };
+                    newQ.question = replaceText(newQ.question);
+                    newQ.hint = replaceText(newQ.hint);
+                    newQ.explanation = replaceText(newQ.explanation);
+                    newQ.options = newQ.options.map(opt => replaceText(opt));
+                }
+                selectedQuestions.push(newQ);
+            });
+
+            // 2. Sekarang kita punya PASTI 25 soal berbeda. Kocok urutannya!
+            selectedQuestions = shuffleArray(selectedQuestions);
             
-            // Kocok 125 soal tersebut
-            rawQuestions = shuffleArray(rawQuestions);
-            
-            // Ambil 25 teratas lalu kocok lagi pilihan ABCD-nya
-            activeQuestions = rawQuestions.slice(0, 25).map(q => {
+            // 3. Kocok pilihan ganda (A-B-C-D) untuk masing-masing soal
+            activeQuestions = selectedQuestions.map(q => {
                 let optionsWithIndex = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
                 optionsWithIndex = shuffleArray(optionsWithIndex);
                 let newCorrectIndex = optionsWithIndex.findIndex(opt => opt.originalIndex === q.correct);
@@ -655,6 +639,7 @@
                     correct: newCorrectIndex
                 };
             });
+            
             launchQuiz();
         }
 
