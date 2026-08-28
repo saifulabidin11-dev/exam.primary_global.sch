@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Comprehensive Assessment Primary School</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'bounce-slight': 'bounceSlight 2s infinite ease-in-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        bounceSlight: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            min-height: 100vh;
+            transition: background 0.5s ease;
+        }
+
+        h1, h2, h3, .font-fredoka {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-card:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        #scratchpad-canvas {
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen" id="app-body">
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-700 to-slate-900 flex items-center justify-center text-white shadow-md text-lg font-bold" id="header-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-wide leading-none" id="header-title">Platform Comprehensive Assessment</h1>
+                    <span id="header-subtitle" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Primary School</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <button onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition btn-bounce" title="Toggle Sound">
+                    <i class="fa-solid fa-volume-high text-lg" id="sound-icon"></i>
+                </button>
+                <button onclick="toggleScratchpad()" class="px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 font-bold text-sm flex items-center space-x-1.5 transition btn-bounce">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span class="hidden sm:inline">Scratchpad</span>
+                </button>
+                <div class="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center space-x-1.5 border border-slate-200">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="timer-display">00:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- WELCOME SCREEN -->
+        <div id="welcome-screen" class="bg-white rounded-3xl p-6 md:p-8 card-shadow text-center max-w-3xl mx-auto my-auto animate-fade-in border border-slate-100">
+            <div class="mb-4 animate-bounce-slight inline-block">
+                <span class="text-5xl">🏆</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 font-fredoka">Comprehensive Academic Evaluation</h2>
+            <p class="text-slate-500 text-sm md:text-base mb-6 max-w-xl mx-auto">
+                Select a subject to test your Higher Order Thinking Skills. Standards adapted from KPM, KSNR, OMNI, and Cambridge English.
+            </p>
+
+            <!-- Participant Details Form -->
+            <div class="mb-6 max-w-lg mx-auto bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left shadow-sm">
+                <h3 class="font-bold text-slate-700 mb-4 text-sm flex items-center"><i class="fa-solid fa-user-graduate mr-2 text-slate-400"></i> Participant Details</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Full Name</label>
+                        <input type="text" id="input-name" placeholder="e.g. Aqsa Razzan D" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">School</label>
+                            <input type="text" id="input-school" placeholder="e.g. Al Ibrah Global School" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">City</label>
+                            <input type="text" id="input-city" placeholder="e.g. Gresik" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grade Selector -->
+            <div class="mb-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <span class="font-bold text-slate-600 text-sm">Select Grade:</span>
+                <div class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                    <button class="py-1.5 px-4 rounded-lg font-extrabold text-sm transition bg-white text-slate-800 shadow-sm border border-slate-200">
+                        Grade 1 - 2 (Active)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subject Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <button onclick="startSubject('math')" class="group relative bg-blue-50 hover:bg-blue-600 border border-blue-100 hover:border-blue-600 rounded-2xl p-5 text-left transition-all duration-300 btn-bounce card-shadow">
+                    <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-500 rounded-xl flex items-center justify-center text-blue-600 group-hover:text-white text-xl mb-3 transition-colors">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-blue-900 group-hover:text-white font-fredoka">Nalaria Mathematics</h3>
+                    <p class="text-xs text-blue-600 group-hover:text-blue-100 mt-1 font-semibold">Logic, Patterns & KMNR</p>
+                </button>
+
+                <button onclick="startSubject('science')" class="group relative bg-emerald-50 hover:bg-emerald-600 border border-emerald-100 hover:border-emerald-600 rounded-2xl p-5 text-left transition-all duration-300 btn-bounce card-shadow">
+                    <div class="w-12 h-12 bg-emerald-100 group-hover:bg-emerald-500 rounded-xl flex items-center justify-center text-emerald-600 group-hover:text-white text-xl mb-3 transition-colors">
+                        <i class="fa-solid fa-flask"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-emerald-900 group-hover:text-white font-fredoka">Realistic Science</h3>
+                    <p class="text-xs text-emerald-600 group-hover:text-emerald-100 mt-1 font-semibold">Natural Phenomena & KSNR</p>
+                </button>
+
+                <button onclick="startSubject('english')" class="group relative bg-rose-50 hover:bg-rose-600 border border-rose-100 hover:border-rose-600 rounded-2xl p-5 text-left transition-all duration-300 btn-bounce card-shadow">
+                    <div class="w-12 h-12 bg-rose-100 group-hover:bg-rose-500 rounded-xl flex items-center justify-center text-rose-600 group-hover:text-white text-xl mb-3 transition-colors">
+                        <i class="fa-solid fa-earth-americas"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-rose-900 group-hover:text-white font-fredoka">English (Cambridge)</h3>
+                    <p class="text-xs text-rose-600 group-hover:text-rose-100 mt-1 font-semibold">IKLC & EF Standards</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- QUIZ CONTAINER -->
+        <div id="quiz-screen" class="hidden flex-col space-y-4 animate-slide-up">
+            <div class="bg-white rounded-2xl p-4 card-shadow border border-slate-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
+                        Question <span id="current-q-num" class="text-lg text-slate-800">1</span> of <span id="total-q-num">25</span>
+                    </span>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100" id="answered-count">
+                        0 Answered
+                    </span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5">
+                    <div id="progress-bar" class="bg-slate-700 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-1.5 justify-center max-h-20 overflow-y-auto pt-1" id="question-pills"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-100 flex flex-col justify-between min-h-[380px] relative">
+                <div class="flex items-center justify-between mb-4">
+                    <span id="question-category" class="px-3 py-1 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-600 border border-slate-200 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>Topic</span>
+                    </span>
+                    <button onclick="toggleHint()" class="text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center space-x-1 border border-amber-200">
+                        <i class="fa-regular fa-lightbulb text-amber-500"></i>
+                        <span>Logical Hint</span>
+                    </button>
+                </div>
+
+                <div id="hint-box" class="hidden mb-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-900 animate-fade-in shadow-inner">
+                    <div class="font-bold mb-1 flex items-center text-amber-800">
+                        <i class="fa-solid fa-bolt text-amber-500 mr-1.5"></i> Hint:
+                    </div>
+                    <p id="hint-text">Think from a different perspective.</p>
+                </div>
+
+                <div class="my-auto">
+                    <div id="question-text-container" class="mb-6"></div>
+                    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4"></div>
+                </div>
+
+                <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button id="prev-btn" onclick="prevQuestion()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition btn-bounce disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Previous
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm transition shadow-md btn-bounce flex items-center">
+                        <span>Next</span>
+                        <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                    <button id="submit-quiz-btn" onclick="confirmSubmit()" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow-md btn-bounce flex items-center space-x-1">
+                        <i class="fa-solid fa-check-double"></i>
+                        <span>Submit Evaluation</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS DASHBOARD -->
+        <div id="results-screen" class="hidden flex-col space-y-4 animate-slide-up w-full">
+            <div class="text-center mb-2">
+                <h2 class="text-2xl font-bold text-slate-800 font-fredoka">Analysis Results</h2>
+                <p id="result-subtitle" class="text-slate-500 text-sm">Comprehensive Academic Evaluation</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-2 bg-blue-700"></div>
+                <div class="pl-4 text-left w-full md:w-1/2">
+                    <span class="text-xs uppercase font-extrabold text-slate-400 tracking-wider">Result Status</span>
+                    <h3 id="status-text" class="text-3xl font-black text-slate-800 mt-1 font-fredoka">Excellent</h3>
+                </div>
+                <div class="bg-blue-800 text-white px-8 py-4 rounded-full text-center flex-shrink-0 shadow-lg border-4 border-blue-100">
+                    <span class="text-[10px] uppercase font-bold block tracking-wider opacity-80 mb-1">Main Score</span>
+                    <span id="final-score" class="text-4xl font-black font-fredoka leading-none">0.00</span>
+                    <span class="text-[10px] uppercase font-bold block tracking-wider opacity-80 mt-1">MAX: 100</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100">
+                    <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">Participant Identity</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex"><span class="w-24 text-slate-500">Name</span><span class="font-semibold text-slate-700">: <span id="res-name">-</span></span></div>
+                        <div class="flex"><span class="w-24 text-slate-500">ID TO</span><span class="font-semibold text-slate-700">: TO-0826</span></div>
+                        <div class="flex"><span class="w-24 text-slate-500">Grade</span><span class="font-semibold text-slate-700">: 1 - 2 Primary</span></div>
+                        <div class="flex"><span class="w-24 text-slate-500">School</span><span class="font-semibold text-slate-700">: <span id="res-school">-</span></span></div>
+                        <div class="flex"><span class="w-24 text-slate-500">City</span><span class="font-semibold text-slate-700">: <span id="res-city">-</span></span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-100">
+                    <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">Execution Profile</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-slate-500">Correct (+4)</span><span id="prof-benar" class="font-semibold text-slate-700">0</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Incorrect (-1)</span><span id="prof-salah" class="font-semibold text-slate-700">0</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Blank (0)</span><span id="prof-kosong" class="font-semibold text-slate-700">0</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Accuracy</span><span id="prof-akurasi" class="font-semibold text-slate-700">0%</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Duration</span><span id="prof-durasi" class="font-semibold text-slate-700">0 min 0 sec</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Speed</span><span id="prof-cepat" class="font-semibold text-slate-700">0.00 min/q</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
+                <div class="bg-blue-600 text-white p-4 rounded-2xl text-center shadow-md">
+                    <div id="pill-score" class="text-2xl font-black font-fredoka">0.00</div>
+                    <div class="text-[10px] uppercase font-bold opacity-80 mt-1">Final Score</div>
+                </div>
+                <div class="bg-blue-50 text-blue-600 border border-blue-100 p-4 rounded-2xl text-center">
+                    <div id="pill-acc" class="text-2xl font-black font-fredoka">0%</div>
+                    <div class="text-[10px] uppercase font-bold opacity-80 mt-1">Accuracy</div>
+                </div>
+                <div class="bg-emerald-50 text-emerald-600 border border-emerald-100 p-4 rounded-2xl text-center">
+                    <div id="pill-right" class="text-2xl font-black font-fredoka">0</div>
+                    <div class="text-[10px] uppercase font-bold opacity-80 mt-1">Correct</div>
+                </div>
+                <div class="bg-rose-50 text-rose-600 border border-rose-100 p-4 rounded-2xl text-center">
+                    <div id="pill-wrong" class="text-2xl font-black font-fredoka">0</div>
+                    <div class="text-[10px] uppercase font-bold opacity-80 mt-1">Incorrect</div>
+                </div>
+                <div class="bg-amber-50 text-amber-600 border border-amber-100 p-4 rounded-2xl text-center md:col-span-1 col-span-2">
+                    <div id="pill-blank" class="text-2xl font-black font-fredoka">0</div>
+                    <div class="text-[10px] uppercase font-bold opacity-80 mt-1">Blank</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border-l-4 border-blue-400 p-4 rounded-r-xl mt-2 text-sm text-slate-700 shadow-sm flex items-start space-x-3">
+                <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                <div>
+                    <span class="font-bold block mb-1">Coaching Note</span>
+                    <span id="coaching-note">Foundation is visible. Keep practicing consistently to improve accuracy and reduce unanswered questions.</span>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-6 mb-4">
+                <button onclick="resetToHome()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow-md transition btn-bounce flex items-center space-x-2 text-sm">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Return to Home</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 mt-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between mb-6 pb-4 border-b border-slate-100 gap-3">
+                    <h3 class="text-xl font-bold text-slate-800 font-fredoka flex items-center">
+                        <i class="fa-solid fa-magnifying-glass-chart text-slate-500 mr-2"></i> Comprehensive Review
+                    </h3>
+                </div>
+                <div id="review-list" class="space-y-5"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCRATCHPAD MODAL -->
+    <div id="scratchpad-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-4 md:p-5 card-shadow border-0 flex flex-col h-[85vh] transform scale-95 transition-transform duration-300" id="scratchpad-content">
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                        <i class="fa-solid fa-pencil"></i>
+                    </div>
+                    <h3 class="font-bold text-lg font-fredoka text-slate-800">Analytical Scratchpad</h3>
+                </div>
+                <button onclick="toggleScratchpad()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center transition">
+                    &times;
+                </button>
+            </div>
+            
+            <div class="flex items-center space-x-2 mb-3 bg-slate-50 p-2 rounded-xl text-xs font-bold overflow-x-auto">
+                <span class="text-slate-500">Ink:</span>
+                <button onclick="setCanvasColor('#1e293b', this)" class="color-btn w-7 h-7 rounded-full bg-slate-800 ring-2 ring-offset-1 ring-slate-800 transition transform hover:scale-110"></button>
+                <button onclick="setCanvasColor('#2563eb', this)" class="color-btn w-7 h-7 rounded-full bg-blue-600 transition transform hover:scale-110 opacity-70"></button>
+                <button onclick="setCanvasColor('#dc2626', this)" class="color-btn w-7 h-7 rounded-full bg-red-600 transition transform hover:scale-110 opacity-70"></button>
+                <button onclick="setCanvasColor('#059669', this)" class="color-btn w-7 h-7 rounded-full bg-emerald-600 transition transform hover:scale-110 opacity-70"></button>
+
+                <div class="h-5 w-px bg-slate-300 mx-2"></div>
+                
+                <span class="text-slate-500">Thickness:</span>
+                <button onclick="setLineWidth(2)" class="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-100">Thin</button>
+                <button onclick="setLineWidth(5)" class="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-100">Thick</button>
+
+                <button onclick="clearCanvas()" class="ml-auto px-3 py-1.5 rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200 transition flex items-center space-x-1 whitespace-nowrap">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Clear</span>
+                </button>
+            </div>
+
+            <div class="flex-grow bg-[#faf9f6] rounded-2xl border-2 border-dashed border-slate-300 relative overflow-hidden shadow-inner">
+                <canvas id="scratchpad-canvas" class="w-full h-full block"></canvas>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button onclick="toggleScratchpad()" class="px-8 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm rounded-xl transition btn-bounce shadow-md">
+                    Save & Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let soundEnabled = true;
+        let audioCtx = null;
+        let studentName = "";
+        let studentSchool = "";
+        let studentCity = "";
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                } else if (type === 'select') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                    osc.start(now); osc.stop(now + 0.15);
+                } else if (type === 'complete') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc.start(now); osc.stop(now + 0.5);
+                }
+            } catch(e) { console.warn("Audio skipped"); }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            icon.className = soundEnabled ? 'fa-solid fa-volume-high text-lg' : 'fa-solid fa-volume-xmark text-lg text-slate-400';
+            if(soundEnabled) playSound('click');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            let icon = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            if(type === 'error') icon = '<i class="fa-solid fa-triangle-exclamation text-rose-500"></i>';
+            toast.innerHTML = `${icon} <span class="text-slate-800">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- BASIS DATABASE 25 SOAL ---
+        const dbQuestions = {
+            english: {
+                gradeA: [
+                    { id: "e1", category: "Vocabulary (IKLC)", question: "A baby elephant is known as a .............", options: ["Puppy", "Calf", "Kitten", "Cub"], correct: 1, hint: "A cow's baby and an elephant's baby share the same name.", explanation: "A baby elephant is called a calf." },
+                    { id: "e2", category: "Grammar (IKLC)", question: "The weather is great - it is really .............", options: ["Suny", "Sunny", "Sunshine", "Sunn"], correct: 1, hint: "Check the spelling for weather with a lot of sun.", explanation: "The correct spelling is 'Sunny'." },
+                    { id: "e3", category: "Vocabulary (IKLC)", question: "You need an ............. when it rains.", options: ["coat", "umbrela", "jumper", "umbrella"], correct: 3, hint: "Check the spelling. It starts with 'u' and has double 'l'.", explanation: "The correct spelling is 'umbrella'." },
+                    { id: "e4", category: "Prepositions (IKLC)", question: "A: Where do you live? \nB: I live ............. a big house.", options: ["on", "in", "under", "at"], correct: 1, hint: "You live inside the house.", explanation: "We use 'in' for living inside a building (house)." },
+                    { id: "e5", category: "Grammar (IKLC)", question: "Andi has got blue .............", options: ["trosers", "trausers", "trousers", "trouser"], correct: 2, hint: "Check the correct spelling for pants.", explanation: "The correct spelling is 'trousers'." },
+                    { id: "e6", category: "Vocabulary (IKLC)", question: "A place of worship is called a .............", options: ["temple", "curch", "mosque", "church"], correct: 3, hint: "It usually has a cross or a tall bell tower.", explanation: "The correct spelling is 'church'." },
+                    { id: "e7", category: "Profession (EF)", question: "He is a postman. He ............. letters everyday.", options: ["delivers", "mails", "puts", "writes"], correct: 0, hint: "What does a postman do with letters to bring them to your house?", explanation: "A postman delivers letters." },
+                    { id: "e8", category: "Vocabulary (EF)", question: "Ria is asleep. Don't ............. her up.", options: ["wait", "wear", "weak", "wake"], correct: 3, hint: "The phrasal verb means to stop someone from sleeping.", explanation: "'Wake up' means to cause someone to stop sleeping." },
+                    { id: "e9", category: "Vocabulary (EF)", question: "Ria wears an accessory on her ears. The accessory is called .............", options: ["ring", "bracelet", "brooch", "earring"], correct: 3, hint: "It has the word 'ear' in it.", explanation: "Jewelry worn on the ear is called an earring." },
+                    { id: "e10", category: "Phrasal Verbs (EF)", question: "It is hot in the room. Let's ............. the fan.", options: ["turn off", "open", "turn on", "close"], correct: 2, hint: "You want the fan to start working.", explanation: "To start an electrical device like a fan, you 'turn on' the switch." },
+                    { id: "e11", category: "Time (EF)", question: "He goes to school at a quarter to six. What time is it?", options: ["05:15", "06:15", "05:45", "06:45"], correct: 2, hint: "15 minutes before 6:00.", explanation: "A quarter to six means 15 minutes before 6, which is 05:45." },
+                    { id: "e12", category: "Vocabulary in Context", question: "I am yellow. I am a fruit. Monkeys love to eat me. What am I?", options: ["An apple", "A banana", "A lemon", "A watermelon"], correct: 1, hint: "Think of a yellow fruit that monkeys eat.", explanation: "A banana fits all the clues: it is yellow, a fruit, and eaten by monkeys." },
+                    { id: "e13", category: "Prepositions (EF)", question: "The cat is hiding ___ the bed because it is scared.", options: ["on", "under", "above", "in front of"], correct: 1, hint: "Where do you usually hide when you want to feel safe?", explanation: "'Under' means below or covered by something. Cats usually hide under beds when scared." },
+                    { id: "e14", category: "Basic Grammar", question: "Look! The birds ___ in the sky.", options: ["is flying", "are flying", "flying", "flies"], correct: 1, hint: "Birds is plural (more than one).", explanation: "For plural subjects happening right now, we use 'are' + Verb-ing." },
+                    { id: "e15", category: "Phrases (IKLC)", question: "Can you ............. me a favor?", options: ["help", "make", "ask", "do"], correct: 3, hint: "The common English expression uses 'do'.", explanation: "The correct expression is 'do me a favor'." },
+                    { id: "e16", category: "Grammar (IKLC)", question: "Complete the sentence: There ............. some wild flowers.", options: ["is", "have", "are", "was"], correct: 2, hint: "'Flowers' is plural.", explanation: "We use 'are' because 'flowers' is plural." },
+                    { id: "e17", category: "Grammar (IKLC)", question: "I see with my two black .............", options: ["eyes", "ears", "noses", "hands"], correct: 0, hint: "What body part do you use to see?", explanation: "We use eyes to see." },
+                    { id: "e18", category: "Questions (EF)", question: "Shopper: '............. is a kilo of these apples?'\nSeller: 'Ten-thousand rupiahs.'", options: ["How many", "What", "How much", "How"], correct: 2, hint: "Which question word asks about price?", explanation: "'How much' is used to ask for the price." },
+                    { id: "e19", category: "Vocabulary (EF)", question: "Ria is sleeping in the bedroom with her .............", options: ["pillow, bolster, and door mat", "refrigerator, pillow, and blanket", "pillow, doll, and blanket", "bolster, blanket, and ashtray"], correct: 2, hint: "Which items belong in a bed for sleeping?", explanation: "Pillow, doll, and blanket are items used while sleeping." },
+                    { id: "e20", category: "Greeting (EF)", question: "Mimi: 'Budi, this is Nala.'\nBudi: 'Hi, Nala. How do you do?'\nNala: '.............'", options: ["Are you all right?", "How do you do?", "How are you?", "Thank you very much"], correct: 1, hint: "The standard response to 'How do you do?' is the same phrase.", explanation: "When someone says 'How do you do?', the polite formal response is 'How do you do?'." },
+                    { id: "e21", category: "Vocabulary", question: "The king's daughter is a .............", options: ["son", "prince", "queen", "princess"], correct: 3, hint: "What do we call the female child of a king?", explanation: "A king's daughter is known as a princess." },
+                    { id: "e22", category: "Adjectives", question: "A dog that is white in color is a .............", options: ["white dog", "black dog", "red dog", "brown dog"], correct: 0, hint: "Match the color.", explanation: "A dog that is white is a white dog." },
+                    { id: "e23", category: "Opposites", question: "The opposite of 'tall' is .............", options: ["big", "long", "short", "fat"], correct: 2, hint: "Not tall.", explanation: "The opposite of tall is short." },
+                    { id: "e24", category: "Family", question: "My father's brother is my .............", options: ["uncle", "aunt", "cousin", "grandfather"], correct: 0, hint: "Male sibling of your parent.", explanation: "Your father's brother is your uncle." },
+                    { id: "e25", category: "Senses", question: "We use our ............. to smell the apples.", options: ["eyes", "ears", "nose", "mouth"], correct: 2, hint: "The organ for smelling.", explanation: "We use our nose to smell." }
+                ]
+            },
+            science: {
+                gradeA: [
+                    { id: "s1", category: "Bagian Tumbuhan", question: "Ria melihat kerajinan seperti anyaman dinding dari bambu. Bagian pada bambu yang digunakan untuk membuat kerajinan tersebut adalah ...", options: ["akar", "batang", "daun", "bunga"], correct: 1, hint: "Bagian tumbuhan bambu yang paling panjang, keras, dan kokoh.", explanation: "Kerajinan anyaman bambu umumnya dibuat dengan membelah dan menganyam bagian batang bambu." },
+                    { id: "s2", category: "Fungsi Tubuh Manusia", question: "Nala akan mengikuti lomba tarik tambang di sekolahnya. Bagian tubuh yang harus ia latih agar menang adalah ...", options: ["kepala dan kaki", "tangan dan kaki", "badan dan leher", "mata dan telinga"], correct: 1, hint: "Tarik tambang membutuhkan kekuatan tarikan dan pijakan.", explanation: "Tangan digunakan untuk menarik tali dengan kuat, sedangkan kaki digunakan sebagai kuda-kuda (pijakan) agar tidak terseret." },
+                    { id: "s3", category: "Manfaat Hewan", question: "Hewan peliharaan yang memiliki fungsi dimanfaatkan dagingnya sebagai makanan, susunya sebagai minuman dan tenaganya untuk mengangkut hasil pertanian adalah ...", options: ["rusa", "kambing", "sapi", "ayam"], correct: 2, hint: "Hewan ini berukuran besar, menghasilkan susu segar, dan tenaganya kuat untuk menarik gerobak bajak.", explanation: "Sapi dimanfaatkan dagingnya, susunya (sapi perah), dan tenaganya (menarik gerobak/membajak sawah)." },
+                    { id: "s4", category: "Lingkungan", question: "Ria melihat temannya membuang plastik permen ke kolam ikan sekolah. Apa yang sebaiknya Ria lakukan?", options: ["Menertawakan temannya", "Diam karena takut bertengkar", "Menegur dengan sopan dan mengajaknya membuang sampah di tempatnya", "Ikut membuang sampah ke kolam"], correct: 2, hint: "Pilih tindakan yang paling baik dan mendidik teman.", explanation: "Tindakan yang benar adalah menegur dengan sopan dan memberikan contoh membuang sampah pada tempatnya agar lingkungan tetap bersih." },
+                    { id: "s5", category: "Konservasi Air", question: "Nala melihat keran air sekolah yang digunakan untuk menyiram tanaman masih menyala hingga siang hari. Perbuatan yang paling tepat dilakukan oleh Nala adalah ...", options: ["melaporkan ke guru atau penjaga sekolah", "menutup keran tersebut agar air tidak terbuang", "membiarkannya karena bukan Nala yang membuka", "bermain air di dekat keran"], correct: 1, hint: "Lakukan tindakan langsung yang bisa menghemat air saat itu juga.", explanation: "Menutup keran secara langsung adalah tindakan tercepat untuk mencegah pemborosan air." },
+                    { id: "s6", category: "Habitat Tumbuhan", question: "Di manakah tumbuhan kaktus biasanya tumbuh?", options: ["Sungai", "Hutan", "Gurun", "Laut"], correct: 2, hint: "Kaktus menyimpan air di batangnya karena tempat tinggalnya sangat kering dan panas.", explanation: "Kaktus memiliki adaptasi khusus untuk bertahan hidup di daerah gurun yang kering dan panas." },
+                    { id: "s7", category: "Kesehatan Tubuh", question: "Ria mengalami sembelit (susah buang air besar) dan dokter menyarankan untuk memakan makanan yang tinggi serat. Makanan yang sebaiknya Ria konsumsi adalah ...", options: ["Burger", "Sayur", "Mie", "Permen"], correct: 1, hint: "Serat paling banyak ditemukan pada tumbuhan hijau.", explanation: "Sayuran mengandung serat yang sangat baik untuk melancarkan pencernaan." },
+                    { id: "s8", category: "Peduli Lingkungan", question: "Mengapa kita tidak boleh menghambur-hamburkan makanan?", options: ["Karena makanan mahal", "Karena bisa membuat dapur kotor", "Karena meningkatkan sampah yang dihasilkan dan membuang-buang energi", "Karena akan dimarahi teman"], correct: 2, hint: "Fokus pada dampak buruk bagi lingkungan (sampah).", explanation: "Menghamburkan makanan berarti membuang energi (dari proses menanam hingga memasak) dan akan menumpuk menjadi sampah organik penyebab gas rumah kaca." },
+                    { id: "s9", category: "Sumber Energi", question: "1. Kertas bergerak karena ditiup angin. \n2. Anak berlarian menggunakan energi makanan. \nPeristiwa yang tepat menggambarkan sumber energi gerak adalah ...", options: ["1 dan 2", "1 saja", "2 saja", "Tidak ada"], correct: 0, hint: "Angin menggerakkan kertas (energi angin), makanan memberi tenaga untuk bergerak (energi kimia ke gerak).", explanation: "Angin adalah sumber energi gerak untuk kertas, dan makanan adalah sumber energi kimia yang diubah menjadi energi gerak oleh anak." },
+                    { id: "s10", category: "Tata Surya", question: "Matahari adalah salah satu benda langit yang penting bagi bumi. Peristiwa yang kurang tepat terjadi jika cahaya matahari tidak sampai ke bumi adalah ...", options: ["hewan akan kehilangan tempat tinggalnya.", "bumi akan menjadi sangat dingin.", "tumbuhan akan sulit tumbuh.", "bumi akan menjadi terang benderang."], correct: 3, hint: "Jika tidak ada matahari, apakah bumi bisa terang?", explanation: "Jika cahaya matahari tidak ada, bumi akan menjadi gelap gulita, bukan terang benderang." },
+                    { id: "s11", category: "Sifat Benda", question: "Mengapa stoples kaca pecah saat jatuh, sedangkan botol plastik hanya penyok sedikit?", options: ["Karena kaca lebih ringan dari plastik", "Karena kaca bersifat kuat dan tidak mudah pecah", "Karena kaca mudah rapuh, sedangkan plastik lentur", "Karena plastik lebih berat"], correct: 2, hint: "Benda rapuh (getas) mudah pecah saat berbenturan keras.", explanation: "Kaca memiliki sifat getas/rapuh sehingga mudah pecah saat terbentur, sedangkan plastik bersifat lebih lentur dan menyerap benturan." },
+                    { id: "s12", category: "Perubahan Benda", question: "Apa yang terjadi pada lilin mainan saat Ria mengubah-ubah bentuknya?", options: ["Hanya dapat berubah bentuk satu kali.", "Berubah warna dan menjadi keras.", "Berubah bentuk, tetapi bisa dibentuk kembali.", "Langsung mencair."], correct: 2, hint: "Lilin mainan (plastisin) itu lunak dan bisa diremas-remas berulang kali.", explanation: "Lilin mainan (plastisin) bersifat lunak dan plastis, artinya bentuknya bisa diubah-ubah berulang kali tanpa merusak bahannya." },
+                    { id: "s13", category: "Cuaca", question: "Jika tabel cuaca hari Jumat menunjukkan 'Cerah', kegiatan manakah yang paling tepat dilakukan?", options: ["Menggunakan jaket dan baju tebal", "Mencuci dan menjemur pakaian", "Memakai jas hujan ke sekolah", "Bermain air banjir"], correct: 1, hint: "Matahari terik sangat berguna untuk mengeringkan sesuatu.", explanation: "Cuaca cerah sangat ideal untuk menjemur pakaian karena panas matahari akan mempercepat penguapan air." },
+                    { id: "s14", category: "Kebutuhan Tubuh", question: "Andi merasa segar dan semangat ketika berangkat sekolah, karena pada malam hari ia sudah ... yang cukup.", options: ["istirahat", "mandi", "menyikat gigi", "bermain"], correct: 0, hint: "Tubuh mengumpulkan kembali energinya di malam hari dengan cara tidur.", explanation: "Istirahat (tidur) yang cukup pada malam hari membuat tubuh kembali bugar dan berenergi di pagi harinya." },
+                    { id: "s15", category: "Tumbuhan", question: "Tumbuhan berikut yang dapat dimanfaatkan bagian akarnya untuk bahan makanan adalah ...", options: ["Kaktus", "Bunga terompet", "Kentang", "Putri Malu"], correct: 2, hint: "Tumbuhan ini sering dibuat French Fries.", explanation: "Kentang (umbi batang/akar) adalah bagian tumbuhan yang tertanam di tanah dan bisa dimakan sebagai sumber karbohidrat." },
+                    { id: "s16", category: "Benda Langit", question: "Benda langit yang memantulkan cahaya matahari dan tampak terang pada malam hari disebut ...", options: ["Awan", "Bulan", "Bintang fajar", "Pelangi"], correct: 1, hint: "Benda ini bentuknya bisa sabit atau purnama.", explanation: "Bulan tampak bercahaya di malam hari karena memantulkan sinar dari Matahari." },
+                    { id: "s17", category: "Panca Indera", question: "Nala sedang mendengarkan lagu dari radio. Bagian tubuh yang digunakan Nala untuk mendengarkan lagu, yaitu ...", options: ["rambut", "telinga", "mulut", "mata"], correct: 1, hint: "Indera pendengaran.", explanation: "Telinga adalah organ tubuh yang berfungsi sebagai indera pendengar." },
+                    { id: "s18", category: "Wujud Benda", question: "Nala membeli es krim pada siang hari. Ketika sampai di rumah, es krim tersebut telah berubah bentuk menjadi air. Proses perubahan itu disebut ...", options: ["membeku", "mencair", "menguap", "menyublim"], correct: 1, hint: "Dari padat menjadi cair (air).", explanation: "Perubahan wujud dari benda padat (es krim) menjadi cair akibat panas disebut mencair." },
+                    { id: "s19", category: "Alat Sekolah", question: "Agar semua siswa kelas dapat melihat tulisan ibu guru, maka ibu guru harus menulis di ... menggunakan ...", options: ["papan tulis; spidol", "buku; kapur tulis", "meja; pulpen", "dinding; pensil"], correct: 0, hint: "Tempat besar di depan kelas.", explanation: "Papan tulis berukuran besar sehingga tulisan spidol dapat dilihat oleh seluruh siswa di kelas." },
+                    { id: "s20", category: "Ciri Benda", question: "Aku adalah sebuah benda yang memiliki ukuran tetap. Jika aku dipindahkan dari botol ke gelas, maka bentukku akan berubah menyerupai gelas. Aku adalah benda ... contohnya ...", options: ["padat; tanah liat", "cair; jus jeruk", "gas; kapas", "cair; kelereng"], correct: 1, hint: "Bentuknya berubah mengikuti wadahnya, tapi volumenya tetap.", explanation: "Benda cair (seperti jus jeruk) sifatnya mengikuti bentuk wadahnya." },
+                    { id: "s21", category: "Gaya & Gerak", question: "Andi bermain bowling pada hari Minggu. Bola bowling dapat bergerak menggelinding ke arah pin karena ...", options: ["didorong/dilempar", "dipegang", "ditendang", "ditiup"], correct: 0, hint: "Menggunakan tangan untuk memberi gaya dorong ke depan.", explanation: "Bola bowling bergerak karena mendapat gaya dorong (lemparan) dari tangan pemainnya." },
+                    { id: "s22", category: "Kebersihan", question: "Apa yang harus dilakukan untuk menjaga lingkungan rumah agar tetap bersih?", options: ["Mencabut bunga di taman", "Membakar daun-daun di halaman", "Membuang sampah pada tempatnya", "Membuang sampah ke sungai"], correct: 2, hint: "Mencegah lingkungan kotor dan bau.", explanation: "Membuang sampah pada tempatnya adalah cara utama menjaga lingkungan tetap bersih dan sehat." },
+                    { id: "s23", category: "Hewan Australia", question: "Untuk melindungi tubuhnya, hewan Koala dan Kanguru ditumbuhi ...", options: ["bulu (feather)", "kulit tebal/rambut", "sisik", "cangkang"], correct: 1, hint: "Mereka adalah mamalia, bukan burung atau reptil.", explanation: "Mamalia seperti koala dan kanguru memiliki rambut/bulu halus (fur/hair) untuk melindungi dan menghangatkan tubuhnya." },
+                    { id: "s24", category: "Sifat Air & Angin", question: "Nelayan menggunakan perahu layar untuk menangkap ikan. Penyebab perahu dapat berlayar membelah laut adalah ...", options: ["Angin mendorong layar perahu.", "Gelombang ombak yang tenang.", "Jangkar yang terpasang di dasar laut.", "Baling-baling perahu."], correct: 0, hint: "Layar kain lebar digunakan untuk menangkap gaya dari udara bergerak.", explanation: "Udara yang bergerak (angin) memberikan gaya dorong pada layar, sehingga perahu bisa maju." },
+                    { id: "s25", category: "Musim", question: "Ciri-ciri musim kemarau di Indonesia adalah ...", options: ["Curah hujan tinggi dan banjir", "Cuaca panas, tanah kering, dan jarang hujan", "Turun salju lebat", "Banyak daun berguguran di musim dingin"], correct: 1, hint: "Kemarau berarti kurang air.", explanation: "Musim kemarau ditandai dengan suhu udara panas, cuaca cerah/kering, dan intensitas hujan yang sangat jarang." }
+                ]
+            },
+            math: {
+                gradeA: [
+                    { id: "m1", category: "Pola Bilangan (KMNR)", question: "Katak melompat ke daun nomor 2, lalu daun nomor 5, lalu daun nomor 8. Daun nomor berapa yang akan diinjak katak selanjutnya?", options: ["10", "11", "12", "13"], correct: 1, hint: "Berapa jarak atau beda tiap lompatan? (5 dikurang 2 = 3).", explanation: "Polanya adalah selalu ditambah 3 (+3). Maka setelah 8, lompatan selanjutnya adalah 8 + 3 = 11." },
+                    { id: "m2", category: "Pemecahan Masalah (KMNR)", question: "Di dalam sebuah kandang terdapat ayam dan kambing. Total jumlah kepala ada 10, total kaki ada 28. Berapa jumlah kambing di dalam kandang tersebut?", options: ["3 ekor", "4 ekor", "5 ekor", "6 ekor"], correct: 1, hint: "Jika semua hewan adalah ayam (2 kaki), maka total kaki hanya 20. Sisa kakinya punya siapa?", explanation: "Misal semua ayam: 10 x 2 = 20 kaki. Selisih kaki: 28 - 20 = 8 kaki. Karena kambing punya ekstra 2 kaki (4-2), maka jumlah kambing = 8 / 2 = 4 ekor." },
+                    { id: "m3", category: "Visual Spasial (KMNR)", question: "Sebuah kubus kayu dicat merah di seluruh luarnya. Jika kubus itu dibelah dua sama besar menjadi 2 balok, berapa banyak sisi baru yang TIDAK berwarna merah?", options: ["1 sisi", "2 sisi", "3 sisi", "4 sisi"], correct: 1, hint: "Bayangkan membelah apel. Bagian dalam (potongan) apel tidak ada kulit merahnya.", explanation: "Saat dibelah, masing-masing dari 2 balok akan memiliki 1 sisi potongan di bagian dalam yang tidak terkena cat. Jadi total ada 2 sisi yang tidak berwarna merah." },
+                    { id: "m4", category: "Aritmetika (KMNR)", question: "Jika A + B = 10, dan A - B = 4. Maka berapakah nilai A x B?", options: ["21", "24", "16", "25"], correct: 0, hint: "Tebak 2 angka yang jika ditambahkan jadi 10, tapi jika dikurangi jadi 4.", explanation: "Angka tersebut adalah A = 7 dan B = 3 (7+3=10, 7-3=4). Maka A x B = 7 x 3 = 21." },
+                    { id: "m5", category: "Waktu/Umur (KMNR)", question: "Umur Andi 3 tahun lebih tua dari Budi. Umur Ria 2 tahun lebih muda dari Budi. Jika umur Ria 7 tahun, berapakah umur Andi?", options: ["10 tahun", "11 tahun", "12 tahun", "13 tahun"], correct: 2, hint: "Cari tahu umur Budi dulu dengan menambahkan umur Ria + 2.", explanation: "Umur Budi = Ria + 2 = 7 + 2 = 9 tahun. Umur Andi = Budi + 3 = 9 + 3 = 12 tahun." },
+                    { id: "m6", category: "Deret (KMNR)", question: "Lanjutkan pola berikut: 1, 3, 6, 10, ...", options: ["12", "14", "15", "16"], correct: 2, hint: "Perhatikan selisihnya: ditambah 2, ditambah 3, ditambah 4...", explanation: "Penambahannya naik: +2, +3, +4. Selanjutnya harus ditambah 5. Jadi 10 + 5 = 15." },
+                    { id: "m7", category: "Geometri (KMNR)", question: "Saya adalah bangun datar. Saya tidak punya sudut. Jarak dari titik tengah ke pinggir saya selalu sama. Siapakah saya?", options: ["Persegi", "Segitiga", "Lingkaran", "Oval"], correct: 2, hint: "Bentuknya seperti roda atau koin.", explanation: "Lingkaran tidak memiliki sudut, dan jarak dari pusat ke keliling (jari-jari) selalu sama." },
+                    { id: "m8", category: "Berhitung (KMNR)", question: "Ibu membeli 2 lusin pensil. Kemudian 5 pensil diberikan kepada adik. Berapa sisa pensil ibu?", options: ["15", "19", "21", "29"], correct: 1, hint: "1 lusin = 12 buah.", explanation: "2 lusin = 24 pensil. Sisa pensil = 24 - 5 = 19 pensil." },
+                    { id: "m9", category: "Logika Posisi (KMNR)", question: "Dalam sebuah lomba lari, Budi menyalip orang di posisi ke-2. Sekarang Budi berada di posisi ke berapa?", options: ["Ke-1", "Ke-2", "Ke-3", "Terakhir"], correct: 1, hint: "Jika kamu mengambil alih tempat juara 2, tempat siapa yang kamu tempati?", explanation: "Jika kamu menyalip posisi ke-2, maka kamu mengambil alih posisinya, sehingga kamu menjadi posisi ke-2." },
+                    { id: "m10", category: "Hitung Cepat (KMNR)", question: "Berapa hasil dari 10 + 10 x 0 + 10?", options: ["0", "10", "20", "30"], correct: 2, hint: "Perkalian (x) harus dikerjakan lebih dulu sebelum penjumlahan (+).", explanation: "Kerjakan perkalian dulu: 10 x 0 = 0. Kemudian jumlahkan: 10 + 0 + 10 = 20." },
+                    { id: "m11", category: "Analisa Usia (KMNR)", question: "Tahun ini, jumlah umur ayah dan ibu adalah 70 tahun. Berapa jumlah umur mereka berdua pada 3 tahun yang lalu?", options: ["64 tahun", "67 tahun", "76 tahun", "65 tahun"], correct: 0, hint: "3 tahun lalu, umur ayah berkurang 3, dan umur ibu juga berkurang 3.", explanation: "Tiga tahun lalu, umur masing-masing berkurang 3 tahun (total berkurang 6). Maka 70 - 6 = 64 tahun." },
+                    { id: "m12", category: "Satuan Berat (KMNR)", question: "2 kilogram + 500 gram = ... gram", options: ["250", "2500", "700", "20500"], correct: 1, hint: "1 kilogram = 1000 gram.", explanation: "2 kg = 2000 gram. 2000 + 500 = 2500 gram." },
+                    { id: "m13", category: "Pecahan (KMNR)", question: "Sebuah pizza dipotong menjadi 8 bagian sama besar. Andi memakan 2 potong dan Budi memakan 3 potong. Sisa pizza tersebut adalah ...", options: ["2/8", "3/8", "4/8", "5/8"], correct: 1, hint: "Total potongan yang dimakan = 2 + 3 = 5 potong. Sisa = 8 - 5.", explanation: "Sisa potongan = 8 - 5 = 3 potong. Jadi sisanya adalah 3/8 bagian." },
+                    { id: "m14", category: "Uang (KMNR)", question: "Nala memiliki uang Rp20.000. Ia membeli buku seharga Rp8.500 dan pensil Rp3.000. Berapa uang kembalian Nala?", options: ["Rp7.500", "Rp8.500", "Rp9.500", "Rp11.500"], correct: 1, hint: "Total belanjaan: 8.500 + 3.000. Kurangi dari 20.000.", explanation: "Total belanja = Rp11.500. Kembalian = 20.000 - 11.500 = Rp8.500." },
+                    { id: "m15", category: "Kombinasi (KMNR)", question: "Nala memiliki 3 kemeja berbeda dan 2 celana berbeda. Ada berapa banyak cara berbeda Nala memasangkan pakaian tersebut?", options: ["3 cara", "5 cara", "6 cara", "9 cara"], correct: 2, hint: "Kalikan jumlah kemeja dengan jumlah celana.", explanation: "Kombinasi pakaian = 3 kemeja x 2 celana = 6 cara/pasangan berbeda." },
+                    { id: "m16", category: "Pengukuran Jarak (KMNR)", question: "Rumah Ria ke sekolah jaraknya 2 km. Ria berangkat naik sepeda sejauh 1500 meter, lalu sepedanya bocor sehingga ia harus berjalan kaki. Berapa meter Ria berjalan kaki?", options: ["500 meter", "1000 meter", "150 meter", "50 meter"], correct: 0, hint: "Jadikan km ke meter dulu (2 km = 2000 m).", explanation: "2 km = 2000 meter. Sisa jarak = 2000 m - 1500 m = 500 meter." },
+                    { id: "m17", category: "Hitung Waktu (KMNR)", question: "Film dimulai pukul 14:15 dan berdurasi 1 jam 30 menit. Pukul berapa film tersebut selesai?", options: ["15:30", "15:45", "16:00", "16:15"], correct: 1, hint: "Tambahkan jam dengan jam, menit dengan menit.", explanation: "14 jam + 1 jam = 15 jam. 15 menit + 30 menit = 45 menit. Selesai pukul 15:45." },
+                    { id: "m18", category: "Angka Rahasia (KMNR)", question: "Saya adalah angka ganjil antara 10 dan 20. Jika saya dibagi 3, tidak ada sisa. Siapakah saya?", options: ["12", "15", "18", "21"], correct: 1, hint: "Cari angka ganjil, lalu pastikan bisa dibagi 3.", explanation: "Angka ganjil antara 10 dan 20: 11, 13, 15, 17, 19. Yang bisa dibagi 3 tanpa sisa hanya 15." },
+                    { id: "m19", category: "Tinggi Benda (KMNR)", question: "Tiang A tingginya 120 cm. Tiang B lebih tinggi 45 cm dari tiang A. Berapa tinggi tiang B?", options: ["75 cm", "155 cm", "165 cm", "265 cm"], correct: 2, hint: "Tambahkan tinggi A dengan selisihnya.", explanation: "Tinggi B = 120 cm + 45 cm = 165 cm." },
+                    { id: "m20", category: "Logika Kalender (KMNR)", question: "Jika hari ini adalah hari Rabu, hari apakah 10 hari lagi dari sekarang?", options: ["Jumat", "Sabtu", "Minggu", "Senin"], correct: 1, hint: "Seminggu (7 hari) kemudian adalah hari Rabu lagi. Sisa 3 hari maju ke depan.", explanation: "7 hari kemudian = Rabu. Maju 3 hari lagi: Kamis, Jumat, Sabtu." },
+                    { id: "m21", category: "Deret Huruf (KMNR)", question: "Perhatikan pola ini: A, C, E, G, ... Huruf apa selanjutnya?", options: ["H", "I", "J", "K"], correct: 1, hint: "Pola ini meloncati 1 huruf (B, D, F dilewati).", explanation: "Meloncat satu huruf (ganjil): A -> C -> E -> G -> I." },
+                    { id: "m22", category: "Analisa Ruang (KMNR)", question: "Sebuah meja berbentuk persegi panjang dipotong salah satu pojoknya. Sekarang, berapa jumlah sudut (pojok) yang dimiliki meja tersebut?", options: ["3", "4", "5", "6"], correct: 2, hint: "Jika kamu memotong satu pojok, akan terbentuk dua pojok baru di sisi potongan tersebut.", explanation: "Awalnya 4 sudut. Memotong 1 sudut menghilangkan 1 sudut, tapi menciptakan 2 sudut baru di ujung potongan. Jadi 4 - 1 + 2 = 5 sudut." },
+                    { id: "m23", category: "Timbangan (KMNR)", question: "Di sebuah timbangan, berat 2 buah apel sama dengan 6 buah stroberi. Maka 1 buah apel sama beratnya dengan ... stroberi.", options: ["2", "3", "4", "12"], correct: 1, hint: "Bagi dua kedua sisinya.", explanation: "Jika 2 apel = 6 stroberi, maka 1 apel = 6 / 2 = 3 stroberi." },
+                    { id: "m24", category: "Aritmetika (KMNR)", question: "Setengah dari angka 50 ditambahkan dengan 15. Berapakah hasilnya?", options: ["30", "40", "45", "65"], correct: 1, hint: "Cari nilai setengah dari 50, lalu tambahkan 15.", explanation: "Setengah dari 50 = 25. Kemudian 25 + 15 = 40." },
+                    { id: "m25", category: "Umur Pohon (KMNR)", question: "Sebuah pohon mangga ditanam pada tahun 2010. Pada tahun berapakah pohon tersebut berumur tepat 1,5 dekade?", options: ["2020", "2025", "2030", "2035"], correct: 1, hint: "1 dekade = 10 tahun. 1,5 dekade = 15 tahun.", explanation: "1,5 dekade = 15 tahun. 2010 + 15 tahun = Tahun 2025." }
+                ]
+            }
+        };
+
+        // --- SISTEM AUTO-MULTIPLIER 5X (DYNAMIC VARIANT GENERATOR) ---
+        // Fungsi ini membaca 25 soal di atas, lalu mengkalikannya menjadi 5 varian berbeda (total 125 soal).
+        function expandDatabase(db) {
+            let expandedDb = { english: { gradeA: [] }, science: { gradeA: [] }, math: { gradeA: [] } };
+            const namesM = ["Andi", "Budi", "Dodi", "Edo", "Fandi"];
+            const namesF = ["Ria", "Siti", "Nala", "Lina", "Tini"];
+            const fruitsID = ["apel", "jeruk", "mangga", "pisang", "stroberi"];
+            const fruitsEN = ["apples", "oranges", "mangoes", "bananas", "grapes"];
+
+            for (let subj in db) {
+                let questions = db[subj].gradeA;
+                questions.forEach(q => {
+                    // Masukkan versi asli (Varian 1)
+                    expandedDb[subj].gradeA.push({...q, id: q.id + "_v1"});
+
+                    // Masukkan Varian 2 sampai 5
+                    for (let v = 1; v < 5; v++) {
+                        let newQ = JSON.parse(JSON.stringify(q)); // Deep copy soal
+                        newQ.id = q.id + "_v" + (v+1);
+
+                        // Fungsi mengganti nama tokoh dan buah (mencegah hafalan letak jawaban)
+                        let replaceText = (text) => {
+                            if(!text) return text;
+                            return text.replace(/Andi/g, namesM[v])
+                                       .replace(/Budi/g, namesM[(v+1)%5])
+                                       .replace(/Ria/g, namesF[v])
+                                       .replace(/Nala/g, namesF[(v+1)%5])
+                                       .replace(/apples/g, fruitsEN[v])
+                                       .replace(/apel/g, fruitsID[v]);
+                        };
+
+                        newQ.question = replaceText(newQ.question);
+                        newQ.hint = replaceText(newQ.hint);
+                        newQ.explanation = replaceText(newQ.explanation);
+                        newQ.options = newQ.options.map(opt => replaceText(opt));
+
+                        expandedDb[subj].gradeA.push(newQ);
+                    }
+                });
+            }
+            return expandedDb;
+        }
+
+        // Jalankan Generator: 25 soal -> 125 soal / mata pelajaran secara instan!
+        const generatedDbQuestions = expandDatabase(dbQuestions);
+
+        let activeQuestions = []; 
+        let userAnswers = {};
+        let currentQIndex = 0;
+        let timerSeconds = 0;
+        let timerInterval = null;
+
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startSubject(subject) {
+            playSound('click');
+            
+            studentName = document.getElementById('input-name').value.trim() || "-";
+            studentSchool = document.getElementById('input-school').value.trim() || "-";
+            studentCity = document.getElementById('input-city').value.trim() || "-";
+
+            let currentGrade = 'gradeA';
+            
+            // Ambil dari database yang sudah dikali 5 (125 soal)
+            let rawQuestions = [...(generatedDbQuestions[subject][currentGrade] || generatedDbQuestions.english.gradeA)];
+            
+            // Kocok 125 soal tersebut
+            rawQuestions = shuffleArray(rawQuestions);
+            
+            // Ambil 25 teratas lalu kocok lagi pilihan ABCD-nya
+            activeQuestions = rawQuestions.slice(0, 25).map(q => {
+                let optionsWithIndex = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
+                optionsWithIndex = shuffleArray(optionsWithIndex);
+                let newCorrectIndex = optionsWithIndex.findIndex(opt => opt.originalIndex === q.correct);
+                return {
+                    ...q,
+                    options: optionsWithIndex.map(opt => opt.text),
+                    correct: newCorrectIndex
+                };
+            });
+            launchQuiz();
+        }
+
+        function launchQuiz() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('quiz-screen').style.display = 'flex';
+            userAnswers = {};
+            currentQIndex = 0;
+            timerSeconds = 0;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+                const s = (timerSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${m}:${s}`;
+            }, 1000);
+            renderQuestionPills();
+            loadQuestion(0);
+        }
+
+        function renderQuestionPills() {
+            const container = document.getElementById('question-pills');
+            container.innerHTML = '';
+            document.getElementById('total-q-num').innerText = activeQuestions.length;
+            activeQuestions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-7 h-7 rounded-lg text-xs font-bold border transition ${idx === currentQIndex ? 'ring-2 ring-slate-400 bg-slate-100 border-slate-300 text-slate-800' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`;
+                btn.innerText = idx + 1;
+                btn.id = `pill-${idx}`;
+                btn.onclick = () => loadQuestion(idx);
+                container.appendChild(btn);
+            });
+            updateProgress();
+        }
+
+        function updateProgress() {
+            let answered = Object.keys(userAnswers).length;
+            document.getElementById('answered-count').innerText = `${answered} Answered`;
+            document.getElementById('progress-bar').style.width = `${Math.max(5, (answered / activeQuestions.length) * 100)}%`;
+            for(let i=0; i<activeQuestions.length; i++) {
+                const p = document.getElementById(`pill-${i}`);
+                if(p) {
+                    if (userAnswers[i] !== undefined) {
+                        p.classList.remove('bg-white', 'border-slate-200', 'text-slate-500');
+                        p.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-200');
+                    }
+                    if (i === currentQIndex) {
+                        p.classList.add('ring-2', 'ring-slate-400', 'ring-offset-1');
+                    } else {
+                        p.classList.remove('ring-2', 'ring-slate-400', 'ring-offset-1');
+                    }
+                }
+            }
+            document.getElementById('prev-btn').disabled = (currentQIndex === 0);
+            if (currentQIndex === activeQuestions.length - 1) {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('submit-quiz-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+            }
+        }
+
+        function loadQuestion(index) {
+            playSound('click');
+            currentQIndex = index;
+            const q = activeQuestions[index];
+            document.getElementById('current-q-num').innerText = index + 1;
+            document.getElementById('question-category').innerHTML = `<i class="fa-solid fa-bookmark"></i><span>${q.category}</span>`;
+            
+            let contentHtml = `<h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-6 font-fredoka leading-relaxed whitespace-pre-line">${q.question}</h3>`;
+            document.getElementById('question-text-container').innerHTML = contentHtml;
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('hint-text').innerText = q.hint;
+            
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, i) => {
+                const isSelected = userAnswers[index] === i;
+                const btn = document.createElement('button');
+                btn.className = `option-card text-left p-4 rounded-2xl border-2 transition flex items-center space-x-3 w-full
+                    ${isSelected ? 'bg-blue-50 border-blue-500 shadow-sm' : 'bg-white border-slate-100 hover:border-blue-300 hover:bg-slate-50'}`;
+                btn.innerHTML = `
+                    <div class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center font-bold text-sm ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}">
+                        ${labels[i]}
+                    </div>
+                    <div class="font-semibold text-slate-700 leading-tight">${opt}</div>
+                `;
+                btn.onclick = () => selectOption(index, i);
+                optContainer.appendChild(btn);
+            });
+            updateProgress();
+        }
+
+        function selectOption(qIndex, optIndex) {
+            playSound('select');
+            userAnswers[qIndex] = optIndex;
+            loadQuestion(qIndex);
+        }
+        function nextQuestion() {
+            if (currentQIndex < activeQuestions.length - 1) loadQuestion(currentQIndex + 1);
+        }
+        function prevQuestion() {
+            if (currentQIndex > 0) loadQuestion(currentQIndex - 1);
+        }
+        function toggleHint() {
+            playSound('click');
+            document.getElementById('hint-box').classList.toggle('hidden');
+        }
+        function confirmSubmit() {
+            let answered = Object.keys(userAnswers).length;
+            if (answered < activeQuestions.length) {
+                showToast(`You have only answered ${answered} out of ${activeQuestions.length} questions. Please complete all!`, "error");
+                return;
+            }
+            finishQuiz();
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            playSound('complete');
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('results-screen').classList.remove('hidden');
+            document.getElementById('results-screen').classList.add('flex');
+            
+            document.getElementById('res-name').innerText = studentName;
+            document.getElementById('res-school').innerText = studentSchool;
+            document.getElementById('res-city').innerText = studentCity;
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            activeQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === undefined) {} 
+                else if (userAnswers[idx] === q.correct) { correctCount++; } 
+                else { wrongCount++; }
+            });
+            let blankCount = activeQuestions.length - (correctCount + wrongCount);
+            let score = (correctCount * 4) + (wrongCount * -1);
+            let accuracy = Math.round((correctCount / activeQuestions.length) * 100);
+            const m = Math.floor(timerSeconds / 60);
+            const s = timerSeconds % 60;
+            const speed = (m + (s/60)) / activeQuestions.length;
+
+            let status = "Needs Improvement";
+            let statusColor = "text-slate-800";
+            let coaching = "Keep practicing. Don't be afraid to try more questions!";
+            if (score >= 80) { status = "Excellent"; statusColor = "text-blue-800"; coaching = "Outstanding performance! Keep up the great work."; }
+            else if (score >= 60) { status = "Good"; statusColor = "text-emerald-700"; coaching = "Solid foundation. Review the incorrect answers to reach the top score."; }
+
+            document.getElementById('status-text').innerText = status;
+            document.getElementById('status-text').className = `text-3xl font-black mt-1 font-fredoka ${statusColor}`;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('pill-score').innerText = score;
+            document.getElementById('pill-acc').innerText = `${accuracy}%`;
+            document.getElementById('pill-right').innerText = correctCount;
+            document.getElementById('pill-wrong').innerText = wrongCount;
+            document.getElementById('pill-blank').innerText = blankCount;
+            document.getElementById('prof-benar').innerText = correctCount;
+            document.getElementById('prof-salah').innerText = wrongCount;
+            document.getElementById('prof-kosong').innerText = blankCount;
+            document.getElementById('prof-akurasi').innerText = `${accuracy}%`;
+            document.getElementById('prof-durasi').innerText = `${m} min ${s} sec`;
+            document.getElementById('prof-cepat').innerText = `${speed.toFixed(2)} min/q`;
+            document.getElementById('coaching-note').innerText = coaching;
+            renderReview();
+        }
+
+        function renderReview() {
+            const container = document.getElementById('review-list');
+            container.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+            activeQuestions.forEach((q, idx) => {
+                const uAns = userAnswers[idx];
+                const isCorrect = uAns === q.correct;
+                const isBlank = uAns === undefined;
+                let statusColor = isBlank ? 'slate' : (isCorrect ? 'emerald' : 'rose');
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-2xl border-l-4 border-l-${statusColor}-500 bg-${statusColor}-50/30 border-y border-r border-slate-100`;
+                let ansHtml = '';
+                q.options.forEach((opt, i) => {
+                    let style = "text-slate-500";
+                    let icon = "";
+                    if (i === q.correct) {
+                        style = "text-emerald-700 font-bold bg-emerald-100 px-2 py-1 rounded";
+                        icon = "<i class='fa-solid fa-check text-emerald-500 ml-2'></i>";
+                    } else if (i === uAns && !isCorrect) {
+                        style = "text-rose-700 line-through bg-rose-100 px-2 py-1 rounded";
+                        icon = "<i class='fa-solid fa-xmark text-rose-500 ml-2'></i>";
+                    }
+                    ansHtml += `<div class="mb-1 text-sm ${style}">${labels[i]}. ${opt} ${icon}</div>`;
+                });
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="text-sm font-extrabold text-slate-500">Question ${idx + 1}</div>
+                        <div class="px-2 py-1 rounded text-xs font-bold bg-${statusColor}-100 text-${statusColor}-700">
+                            ${isBlank ? 'BLANK (0)' : (isCorrect ? 'CORRECT (+4)' : 'INCORRECT (-1)')}
+                        </div>
+                    </div>
+                    <p class="font-bold text-slate-800 mb-3 text-sm whitespace-pre-line">${q.question}</p>
+                    <div class="mb-4">${ansHtml}</div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 text-sm">
+                        <span class="font-bold text-slate-700"><i class="fa-solid fa-graduation-cap text-slate-500"></i> Explanation:</span>
+                        <p class="text-slate-600 mt-1">${q.explanation}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function resetToHome() {
+            playSound('click');
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('flex');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        const modal = document.getElementById('scratchpad-modal');
+        const canvas = document.getElementById('scratchpad-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentColor = '#1e293b';
+        let currentWidth = 2;
+
+        function toggleScratchpad() {
+            playSound('click');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    document.getElementById('scratchpad-content').classList.remove('scale-95');
+                }, 10);
+                resizeCanvas();
+            } else {
+                modal.classList.add('opacity-0');
+                document.getElementById('scratchpad-content').classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width || rect.width;
+            tempCanvas.height = canvas.height || rect.height;
+            if(canvas.width) tempCtx.drawImage(canvas, 0, 0);
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.drawImage(tempCanvas, 0, 0);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        window.addEventListener('resize', () => { if (!modal.classList.contains('hidden')) resizeCanvas(); });
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseleave', endPosition);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e.touches[0]); }, {passive: false});
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); endPosition(); }, {passive: false});
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); }, {passive: false});
+        
+        function startPosition(e) { isDrawing = true; draw(e); }
+        function endPosition() { isDrawing = false; ctx.beginPath(); }
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.pageX) - rect.left;
+            const y = (e.clientY || e.pageY) - rect.top;
+            ctx.lineWidth = currentWidth;
+            ctx.strokeStyle = currentColor;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        function setCanvasColor(color, btnElem) {
+            currentColor = color;
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-1');
+                btn.classList.add('opacity-70');
+            });
+            btnElem.classList.add('ring-2', 'ring-offset-1');
+            btnElem.classList.remove('opacity-70');
+        }
+        function setLineWidth(width) { currentWidth = width; }
+        function clearCanvas() { playSound('click'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    </script>
+</body>
+</html>
