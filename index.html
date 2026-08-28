@@ -583,7 +583,6 @@
             return array;
         }
 
-        // FUNGSI UTAMA PENGACAKAN TANPA DUPLIKAT LOGIKA
         function startSubject(subject) {
             playSound('click');
             
@@ -599,15 +598,37 @@
             const fruitsID = ["apel", "jeruk", "mangga", "pisang", "stroberi"];
             const fruitsEN = ["apples", "oranges", "mangoes", "bananas", "grapes"];
 
+            // --- SISTEM MEMORI (LOCAL STORAGE) ---
+            // Mengingat varian apa yang sudah keluar agar tidak diulang sebelum siklus 5x habis
+            let tracker = JSON.parse(localStorage.getItem('quiz_variants_memory')) || {};
+            if (!tracker[subject]) tracker[subject] = {};
+
             let selectedQuestions = [];
 
-            // 1. Ambil tepat 25 soal induk, ubah ke salah satu variannya secara acak
             originalQuestions.forEach(q => {
-                let v = Math.floor(Math.random() * 5); // Angka acak 0 sampai 4
+                if (!tracker[subject][q.id]) tracker[subject][q.id] = [];
+                let usedVariants = tracker[subject][q.id];
+                
+                // Cari varian (0-4) yang belum pernah keluar
+                let available = [0, 1, 2, 3, 4].filter(v => !usedVariants.includes(v));
+                
+                // Jika semua 5 varian sudah pernah dimainkan, reset ingatan!
+                if (available.length === 0) {
+                    available = [0, 1, 2, 3, 4];
+                    usedVariants = [];
+                }
+                
+                // Pilih satu varian acak yang DIJAMIN belum pernah keluar
+                let v = available[Math.floor(Math.random() * available.length)];
+                
+                // Simpan ke ingatan browser
+                usedVariants.push(v);
+                tracker[subject][q.id] = usedVariants;
                 
                 let newQ = JSON.parse(JSON.stringify(q)); 
                 
-                if (v > 0) { // Jika terpilih > 0, ganti nama tokohnya
+                // Jika varian > 0, ganti teksnya
+                if (v > 0) { 
                     let replaceText = (text) => {
                         if(!text) return text;
                         return text.replace(/Andi/g, namesM[v])
@@ -625,10 +646,13 @@
                 selectedQuestions.push(newQ);
             });
 
-            // 2. Sekarang kita punya PASTI 25 soal berbeda. Kocok urutannya!
+            // Simpan perubahan memori
+            localStorage.setItem('quiz_variants_memory', JSON.stringify(tracker));
+
+            // Kocok urutan ke-25 soal yang sudah dijamin variannya berbeda dari sesi sebelumnya
             selectedQuestions = shuffleArray(selectedQuestions);
             
-            // 3. Kocok pilihan ganda (A-B-C-D) untuk masing-masing soal
+            // Kocok posisi pilihan ganda A-B-C-D
             activeQuestions = selectedQuestions.map(q => {
                 let optionsWithIndex = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
                 optionsWithIndex = shuffleArray(optionsWithIndex);
