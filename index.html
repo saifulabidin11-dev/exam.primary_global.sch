@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform Comprehensive Assessment Primary School</title>
+    <title>To The Mars Tools Learning - Primary School</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -121,11 +121,11 @@
     <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-700 to-slate-900 flex items-center justify-center text-white shadow-md text-lg font-bold" id="header-icon">
-                    <i class="fa-solid fa-graduation-cap"></i>
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-900 flex items-center justify-center text-white shadow-md text-lg font-bold" id="header-icon">
+                    <i class="fa-solid fa-rocket"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-wide leading-none" id="header-title">Platform Comprehensive Assessment</h1>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-wide leading-none" id="header-title">To The Mars Tools Learning</h1>
                     <span id="header-subtitle" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Primary School</span>
                 </div>
             </div>
@@ -151,16 +151,16 @@
         <!-- WELCOME SCREEN -->
         <div id="welcome-screen" class="bg-white rounded-3xl p-6 md:p-8 card-shadow text-center max-w-3xl mx-auto my-auto animate-fade-in border border-slate-100">
             <div class="mb-4 animate-bounce-slight inline-block">
-                <span class="text-5xl">🏆</span>
+                <span class="text-5xl">🚀</span>
             </div>
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 font-fredoka">Comprehensive Academic Evaluation</h2>
             <p class="text-slate-500 text-sm md:text-base mb-6 max-w-xl mx-auto">
-                Select a subject to test your Higher Order Thinking Skills. Standards adapted from KPM, KSNR, OMNI, and Cambridge English.
+                Select a subject to test your Higher Order Thinking Skills. Standards adapted from KPM, KSNR, OMNI, and IKLC.
             </p>
 
             <!-- Participant Details Form -->
             <div class="mb-6 max-w-lg mx-auto bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left shadow-sm">
-                <h3 class="font-bold text-slate-700 mb-4 text-sm flex items-center"><i class="fa-solid fa-user-graduate mr-2 text-slate-400"></i> Participant Details</h3>
+                <h3 class="font-bold text-slate-700 mb-4 text-sm flex items-center"><i class="fa-solid fa-user-astronaut mr-2 text-slate-400"></i> Participant Details</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1">Full Name</label>
@@ -207,12 +207,16 @@
                     <p class="text-xs text-emerald-600 group-hover:text-emerald-100 mt-1 font-semibold">Natural Phenomena & KSNR</p>
                 </button>
 
+                <!-- DEDICATED ENGLISH IKLC TAB -->
                 <button onclick="startSubject('english')" class="group relative bg-rose-50 hover:bg-rose-600 border border-rose-100 hover:border-rose-600 rounded-2xl p-5 text-left transition-all duration-300 btn-bounce card-shadow">
-                    <div class="w-12 h-12 bg-rose-100 group-hover:bg-rose-500 rounded-xl flex items-center justify-center text-rose-600 group-hover:text-white text-xl mb-3 transition-colors">
-                        <i class="fa-solid fa-earth-americas"></i>
+                    <div class="absolute -top-3 -right-3 bg-amber-400 text-amber-900 text-[10px] font-black px-2 py-1 rounded-full shadow-md transform rotate-12">
+                        IKLC Focus
                     </div>
-                    <h3 class="font-bold text-lg text-rose-900 group-hover:text-white font-fredoka">English (Cambridge)</h3>
-                    <p class="text-xs text-rose-600 group-hover:text-rose-100 mt-1 font-semibold">IKLC & EF Standards</p>
+                    <div class="w-12 h-12 bg-rose-100 group-hover:bg-rose-500 rounded-xl flex items-center justify-center text-rose-600 group-hover:text-white text-xl mb-3 transition-colors">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-rose-900 group-hover:text-white font-fredoka">English (IKLC)</h3>
+                    <p class="text-xs text-rose-600 group-hover:text-rose-100 mt-1 font-semibold">Intl. Kangaroo Linguistic Contest</p>
                 </button>
             </div>
         </div>
@@ -476,35 +480,35 @@
             }, 3000);
         }
 
-        // --- BASIS DATABASE 25 SOAL ---
+        // --- DATABASE SOAL BENCHMARK IKLC (ENGLISH) & KMNR/KSNR (INDO) ---
         const dbQuestions = {
             english: {
                 gradeA: [
-                    { id: "e1", category: "Vocabulary (IKLC)", question: "A baby elephant is known as a .............", options: ["Puppy", "Calf", "Kitten", "Cub"], correct: 1, hint: "A cow's baby and an elephant's baby share the same name.", explanation: "A baby elephant is called a calf." },
-                    { id: "e2", category: "Grammar (IKLC)", question: "The weather is great - it is really .............", options: ["Suny", "Sunny", "Sunshine", "Sunn"], correct: 1, hint: "Check the spelling for weather with a lot of sun.", explanation: "The correct spelling is 'Sunny'." },
-                    { id: "e3", category: "Vocabulary (IKLC)", question: "You need an ............. when it rains.", options: ["coat", "umbrela", "jumper", "umbrella"], correct: 3, hint: "Check the spelling. It starts with 'u' and has double 'l'.", explanation: "The correct spelling is 'umbrella'." },
-                    { id: "e4", category: "Prepositions (IKLC)", question: "A: Where do you live? \nB: I live ............. a big house.", options: ["on", "in", "under", "at"], correct: 1, hint: "You live inside the house.", explanation: "We use 'in' for living inside a building (house)." },
-                    { id: "e5", category: "Grammar (IKLC)", question: "Andi has got blue .............", options: ["trosers", "trausers", "trousers", "trouser"], correct: 2, hint: "Check the correct spelling for pants.", explanation: "The correct spelling is 'trousers'." },
-                    { id: "e6", category: "Vocabulary (IKLC)", question: "A place of worship is called a .............", options: ["temple", "curch", "mosque", "church"], correct: 3, hint: "It usually has a cross or a tall bell tower.", explanation: "The correct spelling is 'church'." },
-                    { id: "e7", category: "Profession (EF)", question: "He is a postman. He ............. letters everyday.", options: ["delivers", "mails", "puts", "writes"], correct: 0, hint: "What does a postman do with letters to bring them to your house?", explanation: "A postman delivers letters." },
-                    { id: "e8", category: "Vocabulary (EF)", question: "Ria is asleep. Don't ............. her up.", options: ["wait", "wear", "weak", "wake"], correct: 3, hint: "The phrasal verb means to stop someone from sleeping.", explanation: "'Wake up' means to cause someone to stop sleeping." },
-                    { id: "e9", category: "Vocabulary (EF)", question: "Ria wears an accessory on her ears. The accessory is called .............", options: ["ring", "bracelet", "brooch", "earring"], correct: 3, hint: "It has the word 'ear' in it.", explanation: "Jewelry worn on the ear is called an earring." },
-                    { id: "e10", category: "Phrasal Verbs (EF)", question: "It is hot in the room. Let's ............. the fan.", options: ["turn off", "open", "turn on", "close"], correct: 2, hint: "You want the fan to start working.", explanation: "To start an electrical device like a fan, you 'turn on' the switch." },
-                    { id: "e11", category: "Time (EF)", question: "He goes to school at a quarter to six. What time is it?", options: ["05:15", "06:15", "05:45", "06:45"], correct: 2, hint: "15 minutes before 6:00.", explanation: "A quarter to six means 15 minutes before 6, which is 05:45." },
-                    { id: "e12", category: "Vocabulary in Context", question: "I am yellow. I am a fruit. Monkeys love to eat me. What am I?", options: ["An apple", "A banana", "A lemon", "A watermelon"], correct: 1, hint: "Think of a yellow fruit that monkeys eat.", explanation: "A banana fits all the clues: it is yellow, a fruit, and eaten by monkeys." },
-                    { id: "e13", category: "Prepositions (EF)", question: "The cat is hiding ___ the bed because it is scared.", options: ["on", "under", "above", "in front of"], correct: 1, hint: "Where do you usually hide when you want to feel safe?", explanation: "'Under' means below or covered by something. Cats usually hide under beds when scared." },
-                    { id: "e14", category: "Basic Grammar", question: "Look! The birds ___ in the sky.", options: ["is flying", "are flying", "flying", "flies"], correct: 1, hint: "Birds is plural (more than one).", explanation: "For plural subjects happening right now, we use 'are' + Verb-ing." },
-                    { id: "e15", category: "Phrases (IKLC)", question: "Can you ............. me a favor?", options: ["help", "make", "ask", "do"], correct: 3, hint: "The common English expression uses 'do'.", explanation: "The correct expression is 'do me a favor'." },
-                    { id: "e16", category: "Grammar (IKLC)", question: "Complete the sentence: There ............. some wild flowers.", options: ["is", "have", "are", "was"], correct: 2, hint: "'Flowers' is plural.", explanation: "We use 'are' because 'flowers' is plural." },
-                    { id: "e17", category: "Grammar (IKLC)", question: "I see with my two black .............", options: ["eyes", "ears", "noses", "hands"], correct: 0, hint: "What body part do you use to see?", explanation: "We use eyes to see." },
-                    { id: "e18", category: "Questions (EF)", question: "Shopper: '............. is a kilo of these apples?'\nSeller: 'Ten-thousand rupiahs.'", options: ["How many", "What", "How much", "How"], correct: 2, hint: "Which question word asks about price?", explanation: "'How much' is used to ask for the price." },
-                    { id: "e19", category: "Vocabulary (EF)", question: "Ria is sleeping in the bedroom with her .............", options: ["pillow, bolster, and door mat", "refrigerator, pillow, and blanket", "pillow, doll, and blanket", "bolster, blanket, and ashtray"], correct: 2, hint: "Which items belong in a bed for sleeping?", explanation: "Pillow, doll, and blanket are items used while sleeping." },
-                    { id: "e20", category: "Greeting (EF)", question: "Mimi: 'Budi, this is Nala.'\nBudi: 'Hi, Nala. How do you do?'\nNala: '.............'", options: ["Are you all right?", "How do you do?", "How are you?", "Thank you very much"], correct: 1, hint: "The standard response to 'How do you do?' is the same phrase.", explanation: "When someone says 'How do you do?', the polite formal response is 'How do you do?'." },
-                    { id: "e21", category: "Vocabulary", question: "The king's daughter is a .............", options: ["son", "prince", "queen", "princess"], correct: 3, hint: "What do we call the female child of a king?", explanation: "A king's daughter is known as a princess." },
-                    { id: "e22", category: "Adjectives", question: "A dog that is white in color is a .............", options: ["white dog", "black dog", "red dog", "brown dog"], correct: 0, hint: "Match the color.", explanation: "A dog that is white is a white dog." },
-                    { id: "e23", category: "Opposites", question: "The opposite of 'tall' is .............", options: ["big", "long", "short", "fat"], correct: 2, hint: "Not tall.", explanation: "The opposite of tall is short." },
-                    { id: "e24", category: "Family", question: "My father's brother is my .............", options: ["uncle", "aunt", "cousin", "grandfather"], correct: 0, hint: "Male sibling of your parent.", explanation: "Your father's brother is your uncle." },
-                    { id: "e25", category: "Senses", question: "We use our ............. to smell the apples.", options: ["eyes", "ears", "nose", "mouth"], correct: 2, hint: "The organ for smelling.", explanation: "We use our nose to smell." }
+                    { id: "e1", category: "Vocabulary (IKLC 2023)", question: "A baby elephant is known as a .............", options: ["Puppy", "Calf", "Kitten", "Cub"], correct: 1, hint: "A cow's baby and an elephant's baby share the same name.", explanation: "A baby elephant is called a calf." },
+                    { id: "e2", category: "Grammar (IKLC 2023)", question: "The weather is great - it is really .............", options: ["Suny", "Sunny", "Sunshine", "Sunn"], correct: 1, hint: "Check the spelling for weather with a lot of sun.", explanation: "The correct spelling is 'Sunny'." },
+                    { id: "e3", category: "Phrases (IKLC 2023)", question: "Can you ............. me a favor?", options: ["help", "make", "ask", "do"], correct: 3, hint: "The common English expression uses 'do'.", explanation: "The correct expression is 'do me a favor'." },
+                    { id: "e4", category: "Vocabulary (IKLC 2023)", question: "You need an ............. when it rains.", options: ["coat", "umbrela", "jumper", "umbrella"], correct: 3, hint: "Check the spelling. It starts with 'u' and has double 'l'.", explanation: "The correct spelling is 'umbrella'." },
+                    { id: "e5", category: "Prepositions (IKLC 2023)", question: "A: Where do you live? \nB: I live ............. a big house.", options: ["on", "in", "under", "at"], correct: 1, hint: "You live inside the house.", explanation: "We use 'in' for living inside a building (house)." },
+                    { id: "e6", category: "Grammar (IKLC 2023)", question: "Can you tell me where the park .............?", options: ["does", "do", "is", "were"], correct: 2, hint: "The park is a singular noun, and you are asking about its location.", explanation: "'Is' is the correct 'to be' verb for a singular subject 'the park'." },
+                    { id: "e7", category: "Grammar (IKLC 2023)", question: "Thank you! You ............. a good job.", options: ["made", "did", "have", "done"], correct: 1, hint: "Use the past tense of 'do'.", explanation: "The correct phrase is 'did a good job'." },
+                    { id: "e8", category: "Grammar (IKLC 2022)", question: "Andi and Milly are talking. Andi has got blue .............", options: ["trosers", "trausers", "trousers", "trouser"], correct: 2, hint: "Check the correct spelling for pants.", explanation: "The correct spelling is 'trousers'." },
+                    { id: "e9", category: "Vocabulary (IKLC 2022)", question: "There's a place of worship in the village. It is called a .............", options: ["temple", "curch", "mosque", "church"], correct: 3, hint: "It usually has a cross or a tall bell tower.", explanation: "The correct spelling is 'church'." },
+                    { id: "e10", category: "Grammar (IKLC 2022)", question: "Andi is drawing on the floor. Andi is ............. his knees.", options: ["standing on", "sliding", "lying on", "coloring with"], correct: 0, hint: "When you are on the floor drawing, you usually rest on your knees.", explanation: "The correct phrase is 'standing on his knees' (kneeling)." },
+                    { id: "e11", category: "Grammar (IKLC 2022)", question: "Complete the sentence: There ............. some wild flowers in the picture.", options: ["is", "have", "are", "was"], correct: 2, hint: "'Flowers' is plural.", explanation: "We use 'are' because 'flowers' is plural." },
+                    { id: "e12", category: "Vocabulary (IKLC 2022)", question: "The shape of a ball is a .............", options: ["cuboid", "sphere", "cylinder", "hemisphere"], correct: 1, hint: "It's a perfectly round 3D shape.", explanation: "A ball is a sphere." },
+                    { id: "e13", category: "Reading (IKLC 2019)", question: "King Midas rules the land of Greece. Who is Midas?", options: ["a rich king", "a young queen", "a beautiful princess", "a poor man"], correct: 0, hint: "Read the first sentence carefully.", explanation: "The text states King Midas rules the land of Greece, making him a king." },
+                    { id: "e14", category: "Reading (IKLC 2019)", question: "What does King Midas love the most?", options: ["silver", "diamonds", "gold", "his garden"], correct: 2, hint: "Everything he touches turns into this.", explanation: "King Midas loves gold the most." },
+                    { id: "e15", category: "Grammar (IKLC 2019)", question: "The King has a cup in ............. hand.", options: ["his", "her", "its", "their"], correct: 0, hint: "Use the male possessive pronoun.", explanation: "We use 'his' to refer to something belonging to a male (the King)." },
+                    { id: "e16", category: "Reading (IKLC 2019)", question: "The magician will grant Midas .............", options: ["one wish", "two wishes", "three wishes", "four wishes"], correct: 0, hint: "How many wishes did Dionysus grant?", explanation: "The magician decided to grant Midas one single wish." },
+                    { id: "e17", category: "Vocabulary (IKLC 2018)", question: "A king's daughter is a .............", options: ["son", "prince", "queen", "princess"], correct: 3, hint: "What do we call the female child of a king?", explanation: "A king's daughter is known as a princess." },
+                    { id: "e18", category: "Grammar (IKLC 2018)", question: "The princess ............. to the forest every day.", options: ["is going", "go", "does", "goes"], correct: 3, hint: "For a singular subject (she) happening every day, add -s or -es.", explanation: "We use 'goes' for the third-person singular in the present simple tense." },
+                    { id: "e19", category: "Vocabulary (IKLC 2018)", question: "The girl is crying because she is .............", options: ["happy", "lost", "sad", "alone"], correct: 2, hint: "What feeling usually makes someone cry?", explanation: "People usually cry when they are sad." },
+                    { id: "e20", category: "Vocabulary (IKLC 2017)", question: "The fox is resting. The fox can ............. fish.", options: ["taste", "smell", "touch", "hear"], correct: 1, hint: "Using the nose.", explanation: "The text says 'he can smell fish'." },
+                    { id: "e21", category: "Reading (IKLC 2017)", question: "The fox wants to eat the fish because he is .............", options: ["thirsty", "happy", "tired", "hungry"], correct: 3, hint: "You eat when you are...", explanation: "The fox wants to eat because he is very hungry." },
+                    { id: "e22", category: "Reading (IKLC 2017)", question: "The fox wants to eat the fish. What does he do?", options: ["He goes to sleep.", "He pretends to be dead.", "He plays hide and seek.", "He goes fishing."], correct: 1, hint: "He lies in the middle of the road.", explanation: "The fox pretends to be dead so the man will put him in the cart with the fish." },
+                    { id: "e23", category: "Vocabulary (IKLC 2017)", question: "Which word means 'cook'?", options: ["start", "delicious", "prepare", "dinner"], correct: 2, hint: "To make food ready.", explanation: "To 'prepare' a dinner means to cook or make it ready." },
+                    { id: "e24", category: "Vocabulary (IKLC 2016)", question: "When someone helps you, you say .............", options: ["You're welcome.", "Thank you.", "My pleasure.", "Don't worry."], correct: 1, hint: "The polite expression of gratitude.", explanation: "You say 'Thank you' to show gratitude." },
+                    { id: "e25", category: "Opposites (IKLC 2015)", question: "The opposite of 'bad' is .............", options: ["happy", "tired", "good", "angry"], correct: 2, hint: "Not bad.", explanation: "The opposite of bad is good." }
                 ]
             },
             science: {
@@ -599,7 +603,6 @@
             const fruitsEN = ["apples", "oranges", "mangoes", "bananas", "grapes"];
 
             // --- SISTEM MEMORI (LOCAL STORAGE) ---
-            // Mengingat varian apa yang sudah keluar agar tidak diulang sebelum siklus 5x habis
             let tracker = JSON.parse(localStorage.getItem('quiz_variants_memory')) || {};
             if (!tracker[subject]) tracker[subject] = {};
 
@@ -609,25 +612,20 @@
                 if (!tracker[subject][q.id]) tracker[subject][q.id] = [];
                 let usedVariants = tracker[subject][q.id];
                 
-                // Cari varian (0-4) yang belum pernah keluar
                 let available = [0, 1, 2, 3, 4].filter(v => !usedVariants.includes(v));
                 
-                // Jika semua 5 varian sudah pernah dimainkan, reset ingatan!
                 if (available.length === 0) {
                     available = [0, 1, 2, 3, 4];
                     usedVariants = [];
                 }
                 
-                // Pilih satu varian acak yang DIJAMIN belum pernah keluar
                 let v = available[Math.floor(Math.random() * available.length)];
                 
-                // Simpan ke ingatan browser
                 usedVariants.push(v);
                 tracker[subject][q.id] = usedVariants;
                 
                 let newQ = JSON.parse(JSON.stringify(q)); 
                 
-                // Jika varian > 0, ganti teksnya
                 if (v > 0) { 
                     let replaceText = (text) => {
                         if(!text) return text;
@@ -646,13 +644,10 @@
                 selectedQuestions.push(newQ);
             });
 
-            // Simpan perubahan memori
             localStorage.setItem('quiz_variants_memory', JSON.stringify(tracker));
 
-            // Kocok urutan ke-25 soal yang sudah dijamin variannya berbeda dari sesi sebelumnya
             selectedQuestions = shuffleArray(selectedQuestions);
             
-            // Kocok posisi pilihan ganda A-B-C-D
             activeQuestions = selectedQuestions.map(q => {
                 let optionsWithIndex = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
                 optionsWithIndex = shuffleArray(optionsWithIndex);
